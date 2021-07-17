@@ -1,9 +1,10 @@
 TERMUX_PKG_HOMEPAGE=https://algernon.roboticoverlords.org/
 TERMUX_PKG_DESCRIPTION="Small self-contained web server with Lua, Markdown, QUIC, Redis and PostgreSQL support"
 TERMUX_PKG_LICENSE="MIT"
-TERMUX_PKG_VERSION=1.12.8
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=1.12.12
 TERMUX_PKG_SRCURL=https://github.com/xyproto/algernon/archive/$TERMUX_PKG_VERSION.tar.gz
-TERMUX_PKG_SHA256=562d6f1145980d5e4c8eaefc2780801b163d228720599f22165135182018d6bf
+TERMUX_PKG_SHA256=6127eb975da960fd8aa7732c82f3b5e62d14ea763801778552bdbeec28846bf7
 
 termux_step_make() {
 	termux_setup_golang
@@ -18,13 +19,13 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
+	mkdir -p "$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/bin/
 	install -Dm700 \
 		"$GOPATH"/src/github.com/xyproto/algernon/algernon \
-		"$TERMUX_PREFIX"/bin/
+		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/bin/
 
 	# Offline samples may be useful to get started with Algernon.
-	rm -rf "$TERMUX_PREFIX"/share/doc/algernon
-	mkdir -p "$TERMUX_PREFIX"/share/doc/algernon
+	mkdir -p "$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/share/doc/algernon
 	cp -a "$GOPATH"/src/github.com/xyproto/algernon/samples \
-		"$TERMUX_PREFIX"/share/doc/algernon/
+		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/share/doc/algernon/
 }

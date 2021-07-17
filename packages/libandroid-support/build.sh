@@ -4,6 +4,7 @@ TERMUX_PKG_LICENSE="Apache-2.0, MIT"
 TERMUX_PKG_VERSION=(28
 		    3)
 TERMUX_PKG_LICENSE_FILE="LICENSE.txt, wcwidth-${TERMUX_PKG_VERSION[1]}/LICENSE.txt"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_SRCURL=(https://github.com/termux/libandroid-support/archive/v${TERMUX_PKG_VERSION[0]}.tar.gz
 		   https://github.com/termux/wcwidth/archive/v${TERMUX_PKG_VERSION[1]}.tar.gz)
 TERMUX_PKG_SHA256=(ef35260994ffa3bd054be66068dfc28934c823ac8de2394796d94d1cd5de3be4
@@ -31,6 +32,6 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	install -Dm600 libandroid-support.a $TERMUX_PREFIX/lib/libandroid-support.a
-	install -Dm600 libandroid-support.so $TERMUX_PREFIX/lib/libandroid-support.so
+	install -Dm600 libandroid-support.a $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/lib/libandroid-support.a
+	install -Dm600 libandroid-support.so $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/lib/libandroid-support.so
 }

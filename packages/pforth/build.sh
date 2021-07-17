@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=http://www.softsynth.com/pforth/
 TERMUX_PKG_DESCRIPTION="Portable Forth in C"
 TERMUX_PKG_LICENSE="Public Domain"
+TERMUX_PKG_MAINTAINER="@termux"
 _COMMIT=ee8dc9e9e0f59b8e38dec3732caefe9f3af2b431
 TERMUX_PKG_VERSION=20180513
 TERMUX_PKG_REVISION=1
@@ -35,5 +36,5 @@ termux_step_pre_configure() {
 	export CC="$CC $CFLAGS $LDFLAGS"
 }
 termux_step_make_install() {
-	cp $TERMUX_PKG_BUILDDIR/pforth_standalone $TERMUX_PREFIX/bin/pforth
+	install -m700 $TERMUX_PKG_BUILDDIR/pforth_standalone $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/bin/pforth
 }

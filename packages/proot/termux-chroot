@@ -20,8 +20,11 @@ do
 done
 shift $(($OPTIND-1))
 
+# Kill processes on exit to avoid hanging on exit
+ARGS="--kill-on-exit"
+
 # For the /system/bin/linker(64) to be found:
-ARGS="-b /system:/system"
+ARGS="$ARGS -b /system:/system"
 
 # On some devices /vendor is required for termux packages to work correctly
 # See https://github.com/termux/proot/issues/2#issuecomment-303995382
@@ -43,6 +46,11 @@ fi
 # https://github.com/termux/proot/issues/95#issuecomment-584779998
 if [ -d /apex ]; then
 	ARGS="$ARGS -b /apex:/apex"
+fi
+
+# Android 11.
+if [ -e "/linkerconfig/ld.config.txt" ]; then
+	ARGS="$ARGS -b /linkerconfig/ld.config.txt:/linkerconfig/ld.config.txt"
 fi
 
 if [ -f /property_contexts ]; then

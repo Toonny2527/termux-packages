@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=https://developer.android.com/tools/sdk/ndk/index.html
 TERMUX_PKG_DESCRIPTION="Multilib binaries for cross-compilation"
 TERMUX_PKG_LICENSE="NCSA"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=$TERMUX_NDK_VERSION
 TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_PLATFORM_INDEPENDENT=true
@@ -35,7 +36,7 @@ prepare_libs() {
 	cp $LIBGCC/libgcc.a $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/$SUFFIX/lib/
 }
 
-termux_step_extract_into_massagedir() {
+termux_step_make() {
 	prepare_libs "arm" "arm-linux-androideabi"
 	prepare_libs "arm64" "aarch64-linux-android"
 	prepare_libs "x86" "i686-linux-android"

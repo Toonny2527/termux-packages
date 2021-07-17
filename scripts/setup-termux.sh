@@ -5,6 +5,7 @@ PACKAGES="binutils-gold"	# Part of binutils which is dependency of clang.
 PACKAGES+=" clang"			# Required to build termux-elf-cleaner as well as other
 							# C/C++ packages.
 PACKAGES+=" file"			# Used in termux_step_massage().
+PACKAGES+=" gnupg"			# Used in termux_get_repo_files() and build-package.sh.
 PACKAGES+=" lzip"			# Used by tar to extract *.tar.lz source archives.
 PACKAGES+=" patch"			# Used for applying patches on source code.
 PACKAGES+=" python"			# Used buildorder.py core script.
@@ -40,3 +41,8 @@ PACKAGES+=" valac"
 apt update
 apt dist-upgrade -y
 apt install -y $PACKAGES
+
+PYTHON_PACKAGES=""
+PYTHON_PACKAGES+=" sphinx==1.8.5"		# Needed for libllvm doc build. Newer version fails with "unexpected indentation" errors
+
+pip install $PYTHON_PACKAGES

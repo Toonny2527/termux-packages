@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=https://lloyd.github.io/yajl/
 TERMUX_PKG_DESCRIPTION="Yet Another JSON Library"
 TERMUX_PKG_LICENSE="ISC"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=2.1.0
 TERMUX_PKG_REVISION=5
 TERMUX_PKG_SRCURL=https://github.com/lloyd/yajl/archive/$TERMUX_PKG_VERSION.tar.gz
@@ -11,8 +12,8 @@ TERMUX_PKG_FORCE_CMAKE=true
 
 termux_step_post_make_install() {
 	# Fix location of 'yajl.pc'.
-	mkdir -p "${TERMUX_PREFIX}"/lib/pkgconfig
+	mkdir -p "${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}"/lib/pkgconfig
 	mv -f \
-		"${TERMUX_PREFIX}"/share/pkgconfig/yajl.pc \
-		"${TERMUX_PREFIX}"/lib/pkgconfig/yajl.pc
+		"${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}"/share/pkgconfig/yajl.pc \
+		"${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}"/lib/pkgconfig/yajl.pc
 }

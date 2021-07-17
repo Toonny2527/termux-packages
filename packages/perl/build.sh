@@ -1,15 +1,17 @@
 TERMUX_PKG_HOMEPAGE=https://www.perl.org/
 TERMUX_PKG_DESCRIPTION="Capable, feature-rich programming language"
 TERMUX_PKG_LICENSE="Artistic-License-2.0"
+TERMUX_PKG_MAINTAINER="@termux"
 # Packages which should be rebuilt after version change:
 # - exiftool
 # - irssi
+# - libapt-pkg-perl
+# - libregexp-assemble-perl
 # - psutils
-TERMUX_PKG_VERSION=(5.32.0
-                    1.3.4)
-TERMUX_PKG_REVISION=1
-TERMUX_PKG_SHA256=(efeb1ce1f10824190ad1cadbcccf6fdb8a5d37007d0100d2d9ae5f2b5900c0b4
-                   755aa0ca8141a942188a269564f86c3c82349f82c346ed5c992495d7f35138ba)
+TERMUX_PKG_VERSION=(5.34.0
+                    1.3.6)
+TERMUX_PKG_SHA256=(551efc818b968b05216024fb0b727ef2ad4c100f8cb6b43fab615fa78ae5be9a
+                   4010f41870d64e3957b4b8ce70ebba10a7c4a3e86c5551acb4099c3fcbb37ce5)
 TERMUX_PKG_SRCURL=(http://www.cpan.org/src/5.0/perl-${TERMUX_PKG_VERSION}.tar.gz
 		   https://github.com/arsv/perl-cross/releases/download/${TERMUX_PKG_VERSION[1]}/perl-cross-${TERMUX_PKG_VERSION[1]}.tar.gz)
 TERMUX_PKG_BUILD_IN_SRC=true
@@ -60,7 +62,8 @@ termux_step_configure() {
 		-Dsysroot=$TERMUX_STANDALONE_TOOLCHAIN/sysroot \
 		-Dprefix=$TERMUX_PREFIX \
 		-Dsh=$TERMUX_PREFIX/bin/sh \
-		-Dcc="$ORIG_CC -Wl,-rpath=$TERMUX_PREFIX/lib -Wl,--enable-new-dtags" \
+		-Dcc="$ORIG_CC" \
+		-Dld="$ORIG_CC -Wl,-rpath=$TERMUX_PREFIX/lib -Wl,--enable-new-dtags" \
 		-Duseshrplib
 }
 
@@ -83,4 +86,10 @@ termux_step_post_make_install() {
 	sed 's',"--sysroot=$TERMUX_STANDALONE_TOOLCHAIN"/sysroot,"-I${TERMUX_PREFIX}/include",'g' Config_heavy.pl > Config_heavy.pl.new
 	sed 's',"$TERMUX_STANDALONE_TOOLCHAIN"/sysroot,"-I${TERMUX_PREFIX%%/usr}",'g' Config_heavy.pl.new > Config_heavy.pl
 	rm Config_heavy.pl.new
+
+	# arm (and i686?) seem to explicitly need -pie set to be able
+	# to install some perl packages.
+	if [ "$TERMUX_ARCH" == "arm" ] || [ "$TERMUX_ARCH" == "i686" ]; then
+		sed -i "s@cc => '$ORIG_CC',@cc => '$ORIG_CC -pie',@g" Config.pm
+	fi
 }

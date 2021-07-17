@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=https://www.gnu.org/software/make/
 TERMUX_PKG_DESCRIPTION="Tool to control the generation of non-source files from source files"
 TERMUX_PKG_LICENSE="GPL-3.0"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=4.3
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://mirrors.kernel.org/gnu/make/make-${TERMUX_PKG_VERSION}.tar.gz
@@ -29,8 +30,8 @@ termux_step_make() {
 
 termux_step_make_install() {
 	if $TERMUX_ON_DEVICE_BUILD && [ -z "$(command -v make)" ]; then
-		./make -j 1 install
+		./make -j 1 install DESTDIR=$TERMUX_PKG_MASSAGEDIR
 	else
-		make -j 1 install
+		make -j 1 install DESTDIR=$TERMUX_PKG_MASSAGEDIR
 	fi
 }

@@ -1,10 +1,11 @@
 TERMUX_PKG_HOMEPAGE=https://www.gnu.org/software/emacs/
 TERMUX_PKG_DESCRIPTION="Extensible, customizable text editor-and more"
 TERMUX_PKG_LICENSE="GPL-3.0"
-TERMUX_PKG_VERSION=27.1
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=27.2
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://ftp.gnu.org/gnu/emacs/emacs-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=4a4c128f915fc937d61edfc273c98106711b540c9be3cd5d2e2b9b5b2f172e41
+TERMUX_PKG_SHA256=b4a7cc4e78e63f378624e0919215b910af5bb2a0afc819fad298272e9f40c1b9
 TERMUX_PKG_DEPENDS="ncurses, gnutls, libxml2"
 TERMUX_PKG_BREAKS="emacs-dev"
 TERMUX_PKG_REPLACES="emacs-dev"
@@ -28,6 +29,15 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --with-pdumper=yes
 --with-dumping=none
 "
+
+if $TERMUX_DEBUG; then
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
+	--enable-checking=yes,glyphs
+	--enable-check-lisp-object-type
+	"
+	CFLAGS+=" -gdwarf-4"
+fi
+
 # Ensure use of system malloc:
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" emacs_cv_sanitize_address=yes"
 # Prevent configure from adding -nopie:
@@ -57,6 +67,7 @@ share/emacs/${TERMUX_PKG_VERSION}/etc/refcards
 share/emacs/${TERMUX_PKG_VERSION}/etc/tutorials/TUTORIAL.*
 share/icons
 share/man/man1/grep-changelog.1.gz
+lib/systemd/user/emacs.service
 "
 
 # Remove ctags from the emacs package to prevent conflicting with
@@ -74,10 +85,6 @@ termux_step_post_get_source() {
 	# XXX: We have to start with new host build each time
 	#      to avoid build error when cross compiling.
 	rm -Rf $TERMUX_PKG_HOSTBUILD_DIR
-
-	# Termux only use info pages for emacs. Remove the info directory
-	# to get a clean Info directory file dir.
-	rm -Rf $TERMUX_PREFIX/share/info
 }
 
 termux_step_host_build() {
@@ -101,7 +108,9 @@ termux_step_post_configure() {
 }
 
 termux_step_post_make_install() {
-	cp $TERMUX_PKG_BUILDER_DIR/site-init.el $TERMUX_PREFIX/share/emacs/${TERMUX_PKG_VERSION}/lisp/emacs-lisp/
+	mkdir -p $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/emacs/${TERMUX_PKG_VERSION}/lisp/emacs-lisp
+	cp $TERMUX_PKG_BUILDER_DIR/site-init.el \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/emacs/${TERMUX_PKG_VERSION}/lisp/emacs-lisp/
 }
 
 termux_step_create_debscripts() {

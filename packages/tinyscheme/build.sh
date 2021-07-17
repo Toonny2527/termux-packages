@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=http://tinyscheme.sourceforge.net/home.html
 TERMUX_PKG_DESCRIPTION="Very small scheme implementation"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=1.42
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=http://downloads.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-${TERMUX_PKG_VERSION}/tinyscheme-${TERMUX_PKG_VERSION}.tar.gz
@@ -13,6 +14,7 @@ termux_step_pre_configure() {
 }
 
 termux_step_post_make_install() {
-	mkdir -p $TERMUX_PREFIX/share/tinyscheme/
-	cp $TERMUX_PKG_SRCDIR/init.scm $TERMUX_PREFIX/share/tinyscheme/
+	mkdir -p $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/tinyscheme/
+	install -m600 $TERMUX_PKG_SRCDIR/init.scm \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/tinyscheme/
 }

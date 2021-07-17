@@ -1,10 +1,10 @@
 TERMUX_PKG_HOMEPAGE=https://httpd.apache.org
 TERMUX_PKG_DESCRIPTION="Apache Web Server"
 TERMUX_PKG_LICENSE="Apache-2.0"
-TERMUX_PKG_VERSION=2.4.46
-TERMUX_PKG_REVISION=4
-TERMUX_PKG_SRCURL=https://www.apache.org/dist/httpd/httpd-$TERMUX_PKG_VERSION.tar.bz2
-TERMUX_PKG_SHA256=740eddf6e1c641992b22359cabc66e6325868c3c5e2e3f98faf349b61ecf41ea
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=1:2.4.48
+TERMUX_PKG_SRCURL=https://www.apache.org/dist/httpd/httpd-${TERMUX_PKG_VERSION:2}.tar.bz2
+TERMUX_PKG_SHA256=1bc826e7b2e88108c7e4bf43c026636f77a41d849cfb667aa7b5c0b86dbf966c
 TERMUX_PKG_DEPENDS="apr, apr-util, pcre, openssl, libcrypt, libandroid-support, libnghttp2, libexpat, libuuid, zlib"
 TERMUX_PKG_BREAKS="apache2-dev"
 TERMUX_PKG_REPLACES="apache2-dev"
@@ -97,8 +97,8 @@ termux_step_pre_configure() {
 }
 
 termux_step_post_configure() {
-	# thanks to @JetBalsa
-	gcc -O2 -DCROSS_COMPILE $TERMUX_PKG_SRCDIR/server/gen_test_char.c -o $TERMUX_PKG_BUILDDIR/server/gen_test_char
+	gcc -O2 -DCROSS_COMPILE $TERMUX_PKG_SRCDIR/server/gen_test_char.c \
+		-o $TERMUX_PKG_BUILDDIR/server/gen_test_char
 	touch -d "1 hour" $TERMUX_PKG_BUILDDIR/server/gen_test_char
 }
 
@@ -122,10 +122,10 @@ termux_step_post_make_install() {
 
 termux_step_post_massage() {
 	# sometimes it creates a $TERMUX_PREFIX/bin/sh -> /bin/sh
-	rm -f ${TERMUX_PKG_MASSAGEDIR}${TERMUX_PREFIX}/bin/sh
+	rm -f ${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/bin/sh
 
-	mkdir -p ${TERMUX_PKG_MASSAGEDIR}${TERMUX_PREFIX}/etc/apache2/conf.d
-	touch ${TERMUX_PKG_MASSAGEDIR}${TERMUX_PREFIX}/etc/apache2/conf.d/placeholder.conf
-	mkdir -p ${TERMUX_PKG_MASSAGEDIR}${TERMUX_PREFIX}/var/run/apache2
-	mkdir -p ${TERMUX_PKG_MASSAGEDIR}${TERMUX_PREFIX}/var/log/apache2
+	mkdir -p ${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/etc/apache2/conf.d
+	touch ${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/etc/apache2/conf.d/placeholder.conf
+	mkdir -p ${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/var/run/apache2
+	mkdir -p ${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/var/log/apache2
 }

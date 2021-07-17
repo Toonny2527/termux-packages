@@ -1,9 +1,10 @@
 TERMUX_PKG_HOMEPAGE=https://elixir-lang.org/
 TERMUX_PKG_DESCRIPTION="Elixir is a dynamic, functional language designed for building scalable and maintainable applications"
 TERMUX_PKG_LICENSE="Apache-2.0"
-TERMUX_PKG_VERSION=1.11.2
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=1.12.2
 TERMUX_PKG_SRCURL=https://github.com/elixir-lang/elixir/releases/download/v${TERMUX_PKG_VERSION}/Precompiled.zip
-TERMUX_PKG_SHA256=5a72d10de260e18e16c88a512b53e93e34dbdd7dced59fd6958cb671bcfb2ec4
+TERMUX_PKG_SHA256=9a55d77dea7e3c1b2749809a6e57399d9cd5eced01582f42b3d4d6063c67f7d4
 TERMUX_PKG_DEPENDS="dash, erlang"
 TERMUX_PKG_SUGGESTS="clang, make"
 TERMUX_PKG_PLATFORM_INDEPENDENT=true

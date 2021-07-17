@@ -2,6 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://github.com/gflags/gflags
 TERMUX_PKG_DESCRIPTION="A C++ library that implements commandline flags processing"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_LICENSE_FILE="COPYING.txt"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=2.2.2
 TERMUX_PKG_REVISION=7
 TERMUX_PKG_SRCURL=https://github.com/gflags/gflags/archive/v$TERMUX_PKG_VERSION.tar.gz
@@ -17,8 +18,9 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DINSTALL_HEADERS=ON
 "
 
-termux_step_post_make_install() {
+termux_step_post_massage() {
+	sed -i "s@$TERMUX_PKG_MASSAGEDIR@@g" ./lib/pkgconfig/gflags.pc \
+		lib/cmake/gflags/gflags-nonamespace-targets.cmake
 	#Any old packages using the library name of libgflags
-	ln -sfr "$TERMUX_PREFIX"/lib/pkgconfig/gflags.pc \
-		"$TERMUX_PREFIX"/lib/pkgconfig/libgflags.pc
+	ln -sfr lib/pkgconfig/gflags.pc lib/pkgconfig/libgflags.pc
 }

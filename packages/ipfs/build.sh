@@ -2,9 +2,11 @@ TERMUX_PKG_HOMEPAGE=https://ipfs.io/
 TERMUX_PKG_DESCRIPTION="A peer-to-peer hypermedia distribution protocol"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="Leonid Pliushch <leonid.pliushch@gmail.com>"
-TERMUX_PKG_VERSION=0.7.0
+TERMUX_PKG_VERSION=0.9.0
 TERMUX_PKG_SRCURL=https://github.com/ipfs/go-ipfs/releases/download/v${TERMUX_PKG_VERSION}/go-ipfs-source.tar.gz
-TERMUX_PKG_SHA256=c349802561a61c1efeade4e3e681723b76e9192edacc5a955cf5f68e49e57fba
+TERMUX_PKG_SHA256=6e19cdf6eba342edb0479cefbaca3f492003f35b329acadfe1c0a016b875cebb
+TERMUX_PKG_SUGGESTS="termux-services"
+TERMUX_PKG_SERVICE_SCRIPT=("ipfs" '[ ! -d "${HOME}/.ipfs" ] && ipfs init --empty-repo 2>&1 && ipfs config --json Swarm.EnableRelayHop false 2>&1 && ipfs config --json Swarm.EnableAutoRelay true 2>&1; exec ipfs daemon --enable-namesys-pubsub 2>&1')
 
 termux_step_make() {
 	termux_setup_golang
@@ -32,5 +34,6 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	install -Dm700 -t "$TERMUX_PREFIX"/bin "${TERMUX_PKG_BUILDDIR}/src/github.com/ipfs/go-ipfs/cmd/ipfs/ipfs"
+	install -Dm700 -t "$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/bin \
+		"${TERMUX_PKG_BUILDDIR}/src/github.com/ipfs/go-ipfs/cmd/ipfs/ipfs"
 }

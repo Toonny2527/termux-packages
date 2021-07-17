@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=https://github.com/tsenart/vegeta
 TERMUX_PKG_DESCRIPTION="HTTP load testing tool"
 TERMUX_PKG_LICENSE="MIT"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=12.8.4
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/tsenart/vegeta/archive/v${TERMUX_PKG_VERSION}.tar.gz
@@ -20,5 +21,5 @@ termux_step_make() {
 termux_step_make_install() {
 	install -Dm700 \
 		"$GOPATH"/src/github.com/tsenart/vegeta/vegeta \
-		"$TERMUX_PREFIX"/bin/vegeta
+		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/bin/vegeta
 }

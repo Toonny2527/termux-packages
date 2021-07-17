@@ -2,10 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://kubernetes.io/
 TERMUX_PKG_DESCRIPTION="Kubernetes.io client binary"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="Leonid Pliushch <leonid.pliushch@gmail.com>"
-TERMUX_PKG_VERSION=1.19.4
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_VERSION=1.21.2
 TERMUX_PKG_SRCURL=https://dl.k8s.io/v$TERMUX_PKG_VERSION/kubernetes-src.tar.gz
-TERMUX_PKG_SHA256=ab5b730703c89fb36cff52e8b2ee28c6945f960c8f353ea2658abe4876e0d8a4
+TERMUX_PKG_SHA256=9018572a42755fee6ee64725406fd2cfa7d972fc35f77665b91ee1f41c70bd76
 
 termux_step_get_source() {
 	mkdir -p "$TERMUX_PKG_CACHEDIR"
@@ -40,7 +39,7 @@ termux_step_make() {
 
 termux_step_make_install() {
 	install -Dm700 "$TERMUX_PKG_SRCDIR"/cmd/kubectl/kubectl \
-		"$TERMUX_PREFIX"/bin/kubectl
+		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/bin/kubectl
 
 	#mkdir -p "$TERMUX_PREFIX"/share/man/man1
 	#cp -f "$TERMUX_PKG_SRCDIR"/docs/man/man1/kubectl-*.1 \

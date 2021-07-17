@@ -1,10 +1,11 @@
 TERMUX_PKG_HOMEPAGE=https://python.org/
 TERMUX_PKG_DESCRIPTION="Python 3 programming language intended to enable clear programs"
 TERMUX_PKG_LICENSE="PythonPL"
+TERMUX_PKG_MAINTAINER="@termux"
 _MAJOR_VERSION=3.9
-TERMUX_PKG_VERSION=${_MAJOR_VERSION}.0
+TERMUX_PKG_VERSION=${_MAJOR_VERSION}.6
 TERMUX_PKG_SRCURL=https://www.python.org/ftp/python/${TERMUX_PKG_VERSION}/Python-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=9c73e63c99855709b9be0b3cc9e5b072cb60f37311e8c4e50f15576a0bf82854
+TERMUX_PKG_SHA256=397920af33efc5b97f2e0b57e91923512ef89fc5b3c1d21dbfc8c4828ce0108a
 TERMUX_PKG_DEPENDS="gdbm, libandroid-support, libbz2, libcrypt, libffi, liblzma, libsqlite, ncurses, ncurses-ui-libs, openssl, readline, zlib"
 TERMUX_PKG_RECOMMENDS="clang, make, pkg-config"
 TERMUX_PKG_SUGGESTS="python-tkinter"
@@ -53,22 +54,29 @@ termux_step_pre_configure() {
 	CPPFLAGS+=" -I$TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/include"
 	LDFLAGS+=" -L$TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/lib"
 	if [ $TERMUX_ARCH = x86_64 ]; then LDFLAGS+=64; fi
+
+	if [ "$TERMUX_ON_DEVICE_BUILD" = "true" ]; then
+		# Python's configure script fails with
+		#    Fatal: you must define __ANDROID_API__
+		# if __ANDROID_API__ is not defined.
+		CPPFLAGS+=" -D__ANDROID_API__=$(getprop ro.build.version.sdk)"
+	fi
 }
 
 termux_step_post_make_install() {
-	(cd $TERMUX_PREFIX/bin
+	(cd $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/bin
 	 ln -sf idle${_MAJOR_VERSION} idle
 	 ln -sf python${_MAJOR_VERSION} python
 	 ln -sf python${_MAJOR_VERSION}-config python-config
 	 ln -sf pydoc${_MAJOR_VERSION} pydoc)
-	(cd $TERMUX_PREFIX/share/man/man1
+	(cd $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/man/man1
 	 ln -sf python${_MAJOR_VERSION}.1 python.1)
 }
 
 termux_step_post_massage() {
 	# Verify that desired modules have been included:
 	for module in _bz2 _curses _lzma _sqlite3 _ssl _tkinter zlib; do
-		if [ ! -f "${TERMUX_PREFIX}/lib/python${_MAJOR_VERSION}/lib-dynload/${module}".*.so ]; then
+		if [ ! -f "${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/lib/python${_MAJOR_VERSION}/lib-dynload/${module}".*.so ]; then
 			termux_error_exit "Python module library $module not built"
 		fi
 	done

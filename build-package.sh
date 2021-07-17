@@ -3,21 +3,11 @@
 
 set -e -o pipefail -u
 
+SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct 2>/dev/null || date "+%s")
+export SOURCE_DATE_EPOCH
+
 : "${TMPDIR:=/tmp}"
 export TMPDIR
-
-if [ "$(uname -o)" = "Android" ] || [ -e "/system/bin/app_process" ]; then
-	if [ "$(id -u)" = "0" ]; then
-		echo "On-device execution of this script as root is disabled."
-		exit 1
-	fi
-
-	# This variable tells all parts of build system that build
-	# is performed on device.
-	export TERMUX_ON_DEVICE_BUILD=true
-else
-	export TERMUX_ON_DEVICE_BUILD=false
-fi
 
 cd "$(realpath "$(dirname "$0")")"
 TERMUX_SCRIPTDIR=$(pwd)
@@ -34,6 +24,19 @@ fi
 TERMUX_BUILD_LOCK_FILE="${TMPDIR}/.termux-build.lck"
 if [ ! -e "$TERMUX_BUILD_LOCK_FILE" ]; then
 	touch "$TERMUX_BUILD_LOCK_FILE"
+fi
+
+if [ "$(uname -o)" = "Android" ] || [ -e "/system/bin/app_process" ]; then
+	if [ "$(id -u)" = "0" ]; then
+		echo "On-device execution of this script as root is disabled."
+		exit 1
+	fi
+
+	# This variable tells all parts of build system that build
+	# is performed on device.
+	export TERMUX_ON_DEVICE_BUILD=true
+else
+	export TERMUX_ON_DEVICE_BUILD=false
 fi
 
 # Special variable for internal use. It forces script to ignore
@@ -135,6 +138,10 @@ source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_host_build.sh"
 # shellcheck source=scripts/build/termux_step_setup_toolchain.sh
 source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_setup_toolchain.sh"
 
+# Create a timestamp file so that we can check if any files were updated.
+# shellcheck source=scripts/build/termux_step_get_timestamp.sh
+source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_get_timestamp.sh"
+
 # Apply all *.patch files for the package. Not to be overridden by packages.
 # shellcheck source=scripts/build/termux_step_patch_package.sh
 source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_patch_package.sh"
@@ -190,9 +197,10 @@ source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_install_service_scripts.sh"
 # shellcheck source=scripts/build/termux_step_install_license.sh
 source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_install_license.sh"
 
-# Function to cp (through tar) installed files to massage dir
-# shellcheck source=scripts/build/termux_step_extract_into_massagedir.sh
-source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_extract_into_massagedir.sh"
+# Check so that we have not modified $TERMUX_PREFIX, all files should
+# be installed into $TERMUX_PKG_MASSAGEDIR.
+# source=scripts/build/termux_step_check_prefix_integrity.sh
+source "$TERMUX_SCRIPTDIR/scripts/build/termux_step_check_prefix_integrity.sh"
 
 # Hook function to create {pre,post}install, {pre,post}rm-scripts for subpkgs
 termux_step_create_subpkg_debscripts() {
@@ -240,6 +248,12 @@ if [ "$TERMUX_ON_DEVICE_BUILD" = "true" ]; then
 	TERMUX_ARCH=$(dpkg --print-architecture)
 	export TERMUX_ARCH
 fi
+
+# Special hook to prevent use of "sudo" inside package build scripts.
+# build-package.sh shouldn't perform any privileged operations.
+sudo() {
+	termux_error_exit "Do not use 'sudo' inside build scripts. Build environment should be configured through ./scripts/setup-ubuntu.sh."
+}
 
 _show_usage() {
 	echo "Usage: ./build-package.sh [options] PACKAGE_1 PACKAGE_2 ..."
@@ -360,8 +374,12 @@ while (($# > 0)); do
 		termux_step_get_source
 		cd "$TERMUX_PKG_SRCDIR"
 		termux_step_post_get_source
-		termux_step_handle_hostbuild
+		if [ "$TERMUX_ON_DEVICE_BUILD" = "false" ]; then
+			termux_step_handle_hostbuild
+		fi
+
 		termux_step_setup_toolchain
+		termux_step_get_timestamp
 		termux_step_patch_package
 		termux_step_replace_guess_scripts
 		cd "$TERMUX_PKG_SRCDIR"
@@ -373,17 +391,19 @@ while (($# > 0)); do
 		cd "$TERMUX_PKG_BUILDDIR"
 		termux_step_make
 		cd "$TERMUX_PKG_BUILDDIR"
+
 		termux_step_make_install
 		cd "$TERMUX_PKG_BUILDDIR"
+
 		termux_step_post_make_install
 		termux_step_install_service_scripts
 		termux_step_install_license
-		cd "$TERMUX_PKG_MASSAGEDIR"
-		termux_step_extract_into_massagedir
+		termux_step_check_prefix_integrity
 		cd "$TERMUX_PKG_MASSAGEDIR"
 		termux_step_massage
 		cd "$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"
 		termux_step_post_massage
+		cd "$TERMUX_PKG_MASSAGEDIR"
 		termux_step_create_datatar
 		termux_step_create_debfile
 		termux_step_finish_build

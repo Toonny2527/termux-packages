@@ -1,28 +1,15 @@
 TERMUX_PKG_HOMEPAGE=https://talloc.samba.org/talloc/doc/html/index.html
 TERMUX_PKG_DESCRIPTION="Hierarchical, reference counted memory pool system with destructors"
 TERMUX_PKG_LICENSE="GPL-3.0"
-TERMUX_PKG_VERSION=2.3.1
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=2.3.2
 TERMUX_PKG_SRCURL=https://www.samba.org/ftp/talloc/talloc-${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=ef4822d2fdafd2be8e0cabc3ec3c806ae29b8268e932c5e9a4cd5585f37f9f77
+TERMUX_PKG_SHA256=27a03ef99e384d779124df755deb229cd1761f945eca6d200e8cfd9bf5297bd7
 TERMUX_PKG_BREAKS="libtalloc-dev"
 TERMUX_PKG_REPLACES="libtalloc-dev"
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_configure() {
-	# Certain packages are not safe to build on device because their
-	# build.sh script deletes specific files in $TERMUX_PREFIX.
-	if $TERMUX_ON_DEVICE_BUILD; then
-		termux_error_exit "Package '$TERMUX_PKG_NAME' is not safe for on-device builds."
-	fi
-
-	# Force fresh install:
-	rm -f $TERMUX_PREFIX/include/talloc.h
-
-	# Make sure symlinks are installed:
-	rm $TERMUX_PREFIX/lib/libtalloc* || true
-
-	cd $TERMUX_PKG_SRCDIR
-
 	cat <<EOF > cross-answers.txt
 Checking uname sysname type: "Linux"
 Checking uname machine type: "dontcare"
@@ -59,7 +46,8 @@ EOF
 }
 
 termux_step_post_make_install() {
-	cd $TERMUX_PKG_SRCDIR/bin/default
+	cd bin/default
 	$AR rcu libtalloc.a talloc*.o
-	install -Dm600 libtalloc.a $TERMUX_PREFIX/lib/libtalloc.a
+	install -Dm600 libtalloc.a \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/lib/libtalloc.a
 }

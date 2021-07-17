@@ -1,10 +1,11 @@
 TERMUX_PKG_HOMEPAGE=https://www.ruby-lang.org/
 TERMUX_PKG_DESCRIPTION="Dynamic programming language with a focus on simplicity and productivity"
 TERMUX_PKG_LICENSE="BSD 2-Clause"
-TERMUX_PKG_VERSION=2.7.2
-TERMUX_PKG_REVISION=2
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=3.0.2
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://cache.ruby-lang.org/pub/ruby/${TERMUX_PKG_VERSION:0:3}/ruby-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=1b95ab193cc8f5b5e59d2686cb3d5dcf1ddf2a86cb6950e0b4bdaae5040ec0d6
+TERMUX_PKG_SHA256=570e7773100f625599575f363831166d91d49a1ab97d3ab6495af44774155c40
 # libbffi is used by the fiddle extension module:
 TERMUX_PKG_DEPENDS="gdbm, libandroid-support, libffi, libgmp, readline, openssl, libyaml, zlib"
 TERMUX_PKG_RECOMMENDS="clang, make, pkg-config"
@@ -26,25 +27,30 @@ termux_step_host_build() {
 	"$TERMUX_PKG_SRCDIR/configure" --prefix=$TERMUX_PKG_HOSTBUILD_DIR/ruby-host
 	make -j $TERMUX_MAKE_PROCESSES
 	make install
-	export PATH=$TERMUX_PKG_HOSTBUILD_DIR/ruby-host/bin:$PATH
 }
 
 termux_step_pre_configure() {
+	export PATH=$TERMUX_PKG_HOSTBUILD_DIR/ruby-host/bin:$PATH
+
 	if [ "$TERMUX_ARCH_BITS" = 32 ]; then
 		# process.c:function timetick2integer: error: undefined reference to '__mulodi4'
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" rb_cv_builtin___builtin_mul_overflow=no"
 	fi
 
 	# Do not remove: fix for Clang's "overoptimization".
-	CFLAGS=${CFLAGS/-Oz/-O2}
+	CFLAGS+=" -fno-strict-aliasing"
 }
 
 termux_step_make_install() {
-	make install
-	make uninstall # remove possible remains to get fresh timestamps
-	make install
+	local RBCONFIG=$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/lib/ruby/${TERMUX_PKG_VERSION:0:3}.0/${TERMUX_HOST_PLATFORM}/rbconfig.rb
+	if [ "$TERMUX_ON_DEVICE_BUILD" = true ]; then
+		TERMUX_PKG_EXTRA_MAKE_ARGS+=" DESTDIR=$TERMUX_PKG_MASSAGEDIR"
+	else
+		make $TERMUX_PKG_EXTRA_MAKE_ARGS install
+		make $TERMUX_PKG_EXTRA_MAKE_ARGS uninstall # remove possible remains to get fresh timestamps
+	fi
 
-	local RBCONFIG=$TERMUX_PREFIX/lib/ruby/${TERMUX_PKG_VERSION:0:3}.0/${TERMUX_HOST_PLATFORM}/rbconfig.rb
+	make $TERMUX_PKG_EXTRA_MAKE_ARGS install
 
 	# Fix absolute paths to executables:
 	perl -p -i -e 's/^.*CONFIG\["INSTALL"\].*$/  CONFIG["INSTALL"] = "install -c"/' $RBCONFIG

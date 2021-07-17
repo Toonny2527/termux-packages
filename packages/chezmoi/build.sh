@@ -2,10 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://chezmoi.io
 TERMUX_PKG_DESCRIPTION="Manage your dotfiles across multiple machines"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="Henrik Grimler @Grimler91"
-TERMUX_PKG_VERSION=1.8.9
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_VERSION=2.1.1
 TERMUX_PKG_SRCURL=https://github.com/twpayne/chezmoi/archive/v${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=6e9d341672bc375ad2e9594a689c0c8ae8ebad0c964d699dfbd408fc93058b93
+TERMUX_PKG_SHA256=e91319baddd966f893737595488f5cba071f8371c1ae445de6638b65cd533a97
 
 termux_step_make() {
 	termux_setup_golang
@@ -22,17 +21,21 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	install -Dm700 ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/chezmoi $TERMUX_PREFIX/bin/chezmoi
+	install -Dm700 ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/chezmoi \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/bin/chezmoi
 
-	mkdir -p $TERMUX_PREFIX/share/bash-completions \
-		$TERMUX_PREFIX/share/fish/completions \
-		$TERMUX_PREFIX/share/doc/chezmoi
+	mkdir -p $TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/bash-completions \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/fish/completions \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/zsh/site-functions \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/doc/chezmoi
 
 	install ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/completions/chezmoi-completion.bash \
-		$TERMUX_PREFIX/share/bash-completions/chezmoi
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/bash-completions/chezmoi
 	install ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/completions/chezmoi.fish \
-		$TERMUX_PREFIX/share/fish/completions/chezmoi.fish
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/fish/completions/chezmoi.fish
+	install ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/completions/chezmoi.zsh \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/zsh/site-functions/_chezmoi
 
-	install ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/docs/{FAQ,HOWTO,QUICKSTART,REFERENCE}.md \
-		$TERMUX_PREFIX/share/doc/chezmoi/
+	install ${TERMUX_PKG_BUILDDIR}/src/github.com/twpayne/chezmoi/docs/{FAQ,HOWTO,QUICKSTART,REFERENCE,TEMPLATING}.md \
+		$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/share/doc/chezmoi/
 }

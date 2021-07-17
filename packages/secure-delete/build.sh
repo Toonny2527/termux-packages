@@ -1,6 +1,7 @@
 TERMUX_PKG_HOMEPAGE=http://www.thc.org/
 TERMUX_PKG_DESCRIPTION="Secure file, disk, swap, memory erasure utilities"
 TERMUX_PKG_LICENSE="GPL-2.0"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=3.1
 TERMUX_PKG_REVISION=5
 TERMUX_PKG_SRCURL=http://deb.debian.org/debian/pool/main/s/secure-delete/secure-delete_$TERMUX_PKG_VERSION.orig.tar.gz
@@ -12,6 +13,7 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	make install INSTALL_DIR="$TERMUX_PREFIX/bin"
-	install -Dm600 -t "$TERMUX_PREFIX"/share/man/man1 sfill.1 smem.1 srm.1 sswap.1
+	make install INSTALL_DIR="$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX/bin"
+	install -Dm600 -t "$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX"/share/man/man1 \
+		sfill.1 smem.1 srm.1 sswap.1
 }
